@@ -16,12 +16,14 @@ public class Controller {
 
     @GetMapping("/users")
     public Mono<ResponseEntity<List<User>>> getUsers() {
-        return Flux.merge(
-                connector.getUser("https://api.val.town/eval/@fake.search?query=(key:value)"),
-                connector.getUser("https://api.val.town/eval/@fake.search?query=((key:value) AND (a:b))"),
-                connector.getUser("https://api.val.town/eval/@fake.search?query=((key:value) OR (a:b))"),
-                connector.getUser("https://api.val.town/eval/@fake.search?query=((key:value AND a:b) OR (c:d))"),
-                connector.getUser("https://api.val.town/eval/@fake.search?query=((key:value) AND (a:b) AND (c:d))")
-        ).collectList().map(users -> ResponseEntity.ok().body(users));
+        return Flux.just(
+                        "https://api.val.town/eval/@fake.search?query=(key:value)",
+                        "https://api.val.town/eval/@fake.search?query=((key:value) AND (a:b))",
+                        "https://api.val.town/eval/@fake.search?query=((key:value) OR (a:b))",
+                        "https://api.val.town/eval/@fake.search?query=((key:value AND a:b) OR (c:d))",
+                        "https://api.val.town/eval/@fake.search?query=((key:value) AND (a:b) AND (c:d))"
+                ).flatMap(connector::getUser)
+                .collectList()
+                .map(users -> ResponseEntity.ok().body(users));
     }
 }
